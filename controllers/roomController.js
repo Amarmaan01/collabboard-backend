@@ -134,7 +134,7 @@ const uploadImage = async (req, res) => {
       return res.status(400).json({ message: "Room ID is required" });
     }
 
-    const baseUrl = process.env.BASE_URL || "http://localhost:5001";
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
     const imageData = {
       id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       type: "image",

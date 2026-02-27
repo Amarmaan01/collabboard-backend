@@ -23,12 +23,13 @@ const socketAuth = require("./middleware/socketAuth");
 const socketHandler = require("./sockets/socketHandler");
 
 const app = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
 });
@@ -44,7 +45,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
@@ -60,7 +61,11 @@ app.use(
     secret: process.env.SESSION_SECRET || "collabboard_session",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 60000 },
+    cookie: {
+      maxAge: 60000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    },
   })
 );
 app.use(passport.initialize());
